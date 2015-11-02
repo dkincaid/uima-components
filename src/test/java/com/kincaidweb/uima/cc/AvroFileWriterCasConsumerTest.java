@@ -20,7 +20,7 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngine;
 import static org.apache.uima.fit.factory.CollectionReaderFactory.createReader;
 import static org.testng.Assert.assertNotNull;
 
-public class AvroFileWriterCasConsumerTests {
+public class AvroFileWriterCasConsumerTest {
 
     @Test
     public void serializationTest() throws Exception {

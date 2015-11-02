@@ -9,7 +9,7 @@ import java.net.URL;
 import static org.apache.uima.fit.factory.CollectionReaderFactory.createReader;
 import static org.testng.Assert.assertNotNull;
 
-public class RecordsFromAvroFileCollectionReaderTests {
+public class RecordsFromAvroFileCollectionReaderTest {
 
     @Test
     public void readerTest() throws Exception {
