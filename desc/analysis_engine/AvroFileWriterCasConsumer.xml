@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<casConsumerDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <implementationName>com.kincaidweb.uima.cc.AvroFileWriterCasConsumer</implementationName>
+  <processingResourceMetaData>
+    <name>Write CAS to Avro</name>
+    <description>Write the CAS to a file as Avro records</description>
+    <version>1.0</version>
+    <vendor>IDEXX Laboratories, Inc.</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>FileName</name>
+        <description>Where the Avro file will be written to</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>DocumentIdField</name>
+        <description>Field name to use for the document id</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CasField</name>
+        <description>Field name to use for the cas object</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>FileName</name>
+        <value>
+          <string>test\data\output</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>DocumentIdField</name>
+        <value>
+          <string>documentId</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>CasField</name>
+        <value>
+          <string>cas</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs>
+        </inputs>
+        <outputs/>
+        <inputSofas>
+          <sofaName>plaintext</sofaName>
+        </inputSofas>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>false</modifiesCas>
+      <multipleDeploymentAllowed>false</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </processingResourceMetaData>
+  <resourceManagerConfiguration/>
+</casConsumerDescription>
