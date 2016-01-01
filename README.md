@@ -1,4 +1,6 @@
 # UIMA Components
+
+[![Join the chat at https://gitter.im/dkincaid/uima-components](https://badges.gitter.im/dkincaid/uima-components.svg)](https://gitter.im/dkincaid/uima-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Components for use with UIMA
 
 ![Travis Build Status](https://travis-ci.org/dkincaid/uima-components.svg?branch=develop)
