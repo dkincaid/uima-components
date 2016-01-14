@@ -16,6 +16,7 @@ batches to files prefixed with the provided file name followed by a "-" and a in
 - FileName: file name to write the records to
 - DocumentIdField: the Avro field name to use for the document id field
 - CasField: the Avro field name to use for the XMI serialized CAS
+- Codec: the compression codec to use when writing records
 
 ### RecordsFromAvroFileCollectionReader
 - In package com.kincaidweb.uima.cr
