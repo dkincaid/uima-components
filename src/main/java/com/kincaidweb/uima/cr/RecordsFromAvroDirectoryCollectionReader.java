@@ -51,7 +51,7 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
 
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
-        String directoryName = (String) getConfigParameterValue(PARAM_DIRECTORY_NAME);
+        directoryName = (String) getConfigParameterValue(PARAM_DIRECTORY_NAME);
         documentIdField = (String) getConfigParameterValue(PARAM_DOCUMENT_ID_FIELD);
         contentField = (String) getConfigParameterValue(PARAM_CONTENT_FIELD);
 
@@ -63,16 +63,20 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
         File dir = new File(directory);
         File[] files = dir.listFiles();
 
-        for (File file: files) {
-            if (file.isFile()) {
-                try {
-                    filenames.offer(file.getCanonicalPath());
-                } catch (IOException e) {
-                    logger.error("Unable to get the canonical path for " + file, e);
+        if (files != null) {
+            for (File file: files) {
+                if (file.isFile()) {
+                    try {
+                        filenames.offer(file.getCanonicalPath());
+                    } catch (IOException e) {
+                        logger.error("Unable to get the canonical path for " + file, e);
+                    }
+                } else if (file.isDirectory()) {
+                    setFileList(file.getAbsolutePath());
                 }
-            } else if (file.isDirectory()) {
-                setFileList(file.getAbsolutePath());
             }
+        } else {
+            logger.warn("No files found in the directory [" + directory + "]!");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.kincaidweb.uima.cc;
 
 import org.apache.avro.Schema;
+import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -27,6 +28,7 @@ public class AvroFileWriterCasConsumer extends JCasAnnotator_ImplBase {
     public static final String PARAM_FILENAME = "FileName";
     public static final String PARAM_DOCUMENT_ID_FIELD = "DocumentIdField";
     public static final String PARAM_CAS_FIELD = "CasField";
+    public static final String PARAM_CODEC = "Codec";
 
     @ConfigurationParameter(name = PARAM_FILENAME)
     private String fileName;
@@ -36,6 +38,9 @@ public class AvroFileWriterCasConsumer extends JCasAnnotator_ImplBase {
 
     @ConfigurationParameter(name = PARAM_CAS_FIELD, defaultValue = "cas")
     private String casField;
+
+    @ConfigurationParameter(name = PARAM_CODEC, defaultValue = "null")
+    private String codec;
 
     private Schema schema;
     private DataFileWriter<GenericRecord> dataFileWriter;
@@ -48,6 +53,7 @@ public class AvroFileWriterCasConsumer extends JCasAnnotator_ImplBase {
         documentIdField = (String) context.getConfigParameterValue(PARAM_DOCUMENT_ID_FIELD);
         casField = (String) context.getConfigParameterValue(PARAM_CAS_FIELD);
         fileName = (String) context.getConfigParameterValue(PARAM_FILENAME);
+        codec = (String) context.getConfigParameterValue(PARAM_CODEC);
 
         String schemaJson = "{\"namespace\": \"com.idexx.avro\",\n" +
                 " \"type\": \"record\",\n" +
@@ -113,6 +119,7 @@ public class AvroFileWriterCasConsumer extends JCasAnnotator_ImplBase {
     private void newDataFileWriter() {
         File file = new File(fileName + "-" + batchCounter + ".avro");
         dataFileWriter = new DataFileWriter<>(datumWriter);
+        dataFileWriter.setCodec(CodecFactory.fromString(codec));
         try {
             dataFileWriter.create(schema, file);
         } catch (IOException e) {
