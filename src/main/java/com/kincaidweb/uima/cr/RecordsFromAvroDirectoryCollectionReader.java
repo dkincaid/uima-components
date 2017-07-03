@@ -14,6 +14,7 @@ import org.apache.uima.util.ProgressImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * UIMA Collection reader that reads records from all the Avro files in a directory. If a preProcessor is provided
@@ -73,14 +74,13 @@ public class RecordsFromAvroDirectoryCollectionReader extends DirectoryCollectio
         GenericRecord nextRecord = currentReader.next();
         String documentId = String.valueOf(nextRecord.get(documentIdField));
 
-        String content;
         if (preProcessor != null) {
-            content = preProcessor.preProcess(nextRecord, (byte[]) nextRecord.get(contentField));
+            preProcessor.preProcess(nextRecord, (ByteBuffer) nextRecord.get(contentField), jcas);
         } else {
-            content = String.valueOf(nextRecord.get(contentField));
+            String content = String.valueOf(nextRecord.get(contentField));
+            jcas.setDocumentText(content);
         }
 
-        jcas.setDocumentText(content);
         //DocumentID docId = new DocumentID(jcas);
         //docId.setDocumentID(documentId);
         //docId.addToIndexes();
