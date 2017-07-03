@@ -43,6 +43,8 @@ public class RecordsFromAvroFileCollectionReader extends JCasCollectionReader_Im
     @ConfigurationParameter(name = PARAM_CONTENT_FIELD)
     private String contentField;
 
+    private RecordTextPreProcessor preProcessor = null;
+
     private FileReader<GenericRecord> reader;
     private int recordsRead;
 
@@ -61,9 +63,15 @@ public class RecordsFromAvroFileCollectionReader extends JCasCollectionReader_Im
 
     @Override
     public void getNext(JCas jcas) throws IOException, CollectionException {
-            GenericRecord nextRecord = reader.next();
-            String documentId = String.valueOf(nextRecord.get(documentIdField));
-            String content = String.valueOf(nextRecord.get(contentField));
+        GenericRecord nextRecord = reader.next();
+        String documentId = String.valueOf(nextRecord.get(documentIdField));
+
+        String content;
+        if (preProcessor != null) {
+            content = preProcessor.preProcess(nextRecord, (byte[]) nextRecord.get(contentField));
+        } else {
+            content = String.valueOf(nextRecord.get(contentField));
+        }
 
             jcas.setDocumentText(content);
             //DocumentID docId = new DocumentID(jcas);
@@ -89,5 +97,9 @@ public class RecordsFromAvroFileCollectionReader extends JCasCollectionReader_Im
     @Override
     public void close() throws IOException {
         reader.close();
+    }
+
+    public void setPreProcessor(RecordTextPreProcessor preProcessor) {
+        this.preProcessor = preProcessor;
     }
 }

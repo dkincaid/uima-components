@@ -24,7 +24,7 @@ public class AvroFileWriterCasConsumerTest {
 
     @Test
     public void serializationTest() throws Exception {
-        URL testFile = ClassLoader.getSystemResource("part-00683.avro");
+        URL testFile = ClassLoader.getSystemResource("avro/part-00683.avro");
 
         AnalysisEngine avroFileWriterCasConsumer = createEngine(AvroFileWriterCasConsumer.class,
                 AvroFileWriterCasConsumer.PARAM_FILENAME, "/tmp/test-ser.avro",

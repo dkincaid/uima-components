@@ -13,7 +13,7 @@ public class RecordsFromAvroFileCollectionReaderTest {
 
     @Test
     public void readerTest() throws Exception {
-        URL testFile = ClassLoader.getSystemResource("part-00683.avro");
+        URL testFile = ClassLoader.getSystemResource("avro/part-00683.avro");
 
         RecordsFromAvroFileCollectionReader collectionReader = new RecordsFromAvroFileCollectionReader();
         collectionReader = (RecordsFromAvroFileCollectionReader) createReader(RecordsFromAvroFileCollectionReader.class,

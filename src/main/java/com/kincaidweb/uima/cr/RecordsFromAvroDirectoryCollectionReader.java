@@ -7,37 +7,31 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
-import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * UIMA Collection reader that reads records from all the Avro files in a directory.
+ * UIMA Collection reader that reads records from all the Avro files in a directory. If a preProcessor is provided
+ * it will be used to process the content of the ContentField in each record. Otherwise the value of the ContentField
+ * is assumed to be a text string.
  *
  * Parameters:
  * <ul>
- *     <li>DirectoryName: full path to the Avro file to be read.</li>
+ *     <li>DirectoryName: full path to the directory containing the Avro files to be read.</li>
  *     <li>DocumentIdField: (not currently used)</li>
  *     <li>ContentField: the name of the field in the schema that holds the text of the document</li>
  * </ul>
  */
-public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionReader_ImplBase {
+public class RecordsFromAvroDirectoryCollectionReader extends DirectoryCollectionReader {
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    public static final String PARAM_DIRECTORY_NAME = "DirectoryName";
     public static final String PARAM_DOCUMENT_ID_FIELD = "DocumentIdField";
     public static final String PARAM_CONTENT_FIELD = "ContentField";
-
-    @ConfigurationParameter(name = PARAM_DIRECTORY_NAME)
-    private String directoryName;
 
     @ConfigurationParameter(name = PARAM_DOCUMENT_ID_FIELD)
     private String documentIdField;
@@ -45,39 +39,16 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
     @ConfigurationParameter(name = PARAM_CONTENT_FIELD)
     private String contentField;
 
-    private Queue<String> filenames = new ConcurrentLinkedQueue<>();
+    private RecordTextPreProcessor preProcessor = null;
+
     private int recordsRead;
     private FileReader<GenericRecord> currentReader;
 
     @Override
-    public void initialize(UimaContext context) throws ResourceInitializationException {
-        directoryName = (String) getConfigParameterValue(PARAM_DIRECTORY_NAME);
+    public void doInitialize(UimaContext context) {
         documentIdField = (String) getConfigParameterValue(PARAM_DOCUMENT_ID_FIELD);
         contentField = (String) getConfigParameterValue(PARAM_CONTENT_FIELD);
-
-        setFileList(directoryName);
-        currentReader = openReader(filenames.remove());
-    }
-
-    private void setFileList(String directory) {
-        File dir = new File(directory);
-        File[] files = dir.listFiles();
-
-        if (files != null) {
-            for (File file: files) {
-                if (file.isFile()) {
-                    try {
-                        filenames.offer(file.getCanonicalPath());
-                    } catch (IOException e) {
-                        logger.error("Unable to get the canonical path for " + file, e);
-                    }
-                } else if (file.isDirectory()) {
-                    setFileList(file.getAbsolutePath());
-                }
-            }
-        } else {
-            logger.warn("No files found in the directory [" + directory + "]!");
-        }
+        currentReader = openReader(nextFile());
     }
 
     private FileReader<GenericRecord> openReader(String filename) {
@@ -96,12 +67,18 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
     public void getNext(JCas jcas) throws IOException, CollectionException {
         if (!currentReader.hasNext()) {
             currentReader.close();
-            currentReader = openReader(filenames.remove());
+            currentReader = openReader(nextFile());
         }
 
         GenericRecord nextRecord = currentReader.next();
         String documentId = String.valueOf(nextRecord.get(documentIdField));
-        String content = String.valueOf(nextRecord.get(contentField));
+
+        String content;
+        if (preProcessor != null) {
+            content = preProcessor.preProcess(nextRecord, (byte[]) nextRecord.get(contentField));
+        } else {
+            content = String.valueOf(nextRecord.get(contentField));
+        }
 
         jcas.setDocumentText(content);
         //DocumentID docId = new DocumentID(jcas);
@@ -113,7 +90,7 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
 
     @Override
     public boolean hasNext() throws IOException, CollectionException {
-        return currentReader.hasNext() || !filenames.isEmpty();
+        return currentReader.hasNext() || hasFiles();
     }
 
     @Override
@@ -127,5 +104,9 @@ public class RecordsFromAvroDirectoryCollectionReader extends JCasCollectionRead
     @Override
     public void close() throws IOException {
         currentReader.close();
+    }
+
+    public void setPreProcessor(RecordTextPreProcessor preProcessor) {
+        this.preProcessor = preProcessor;
     }
 }
